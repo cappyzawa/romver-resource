@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"bytes"
 	"fmt"
 
 	resource "github.com/cappyzawa/romver-resource"
@@ -9,6 +10,7 @@ import (
 // Driver operates the versioning
 type Driver interface {
 	Bump() (string, error)
+	Set(string) error
 	Check(string) ([]string, error)
 }
 
@@ -33,6 +35,11 @@ func FromSource(source resource.Source) (Driver, error) {
 			File:          source.File,
 			GitUser:       source.GitUser,
 			CommitMessage: source.CommitMessage,
+
+			Runner: &resource.ExCommand{
+				Stdout: new(bytes.Buffer),
+				Stderr: new(bytes.Buffer),
+			},
 		}, nil
 
 	default:
