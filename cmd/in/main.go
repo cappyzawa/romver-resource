@@ -11,7 +11,7 @@ import (
 	resource "github.com/cappyzawa/romver-resource"
 )
 
-// In represents out command stream
+// In represents in command stream
 type In struct {
 	InStream  io.Reader
 	ErrStream io.Writer
