@@ -9,6 +9,7 @@ import (
 // Driver operates the versioning
 type Driver interface {
 	Bump() (string, error)
+	Check(string) ([]string, error)
 }
 
 // FromSource returns driver based on source configuration

@@ -279,3 +279,50 @@ func (gd *GitDriver) writeVersion(newVersion string) (bool, error) {
 
 	return true, err
 }
+
+// Check checks new version
+func (gd *GitDriver) Check(cursor string) ([]string, error) {
+	if err := gd.setUpAuth(); err != nil {
+		return nil, err
+	}
+
+	if err := gd.setUpRepo(); err != nil {
+		return nil, err
+	}
+
+	currentVersion, exists, err := gd.readVersion()
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return []string{gd.InitialVersion}, nil
+	}
+
+	if cursor == "" {
+		cursor = gd.InitialVersion
+	}
+
+	isCurrentGreater, err := gte(currentVersion, cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	if isCurrentGreater {
+		return []string{currentVersion}, nil
+	}
+
+	return []string{}, nil
+}
+
+func gte(current, cursor string) (bool, error) {
+	currentInt, err := strconv.Atoi(current)
+	if err != nil {
+		return false, err
+	}
+	cursorInt, err := strconv.Atoi(cursor)
+	if err != nil {
+		return false, err
+	}
+
+	return currentInt-cursorInt >= 0, nil
+}
