@@ -1,0 +1,82 @@
+resources:
+- name: romver-resource
+  type: git
+  icon: github-circle
+  source:
+    branch: master
+    uri: &github_uri git@github.com:cappyzawa/romver-resource
+    private_key: &github_private_key ((deploy-key))
+- name: builder
+  type: registry-image
+  icon: docker
+  source:
+    repository: concourse/builder-task
+- name: version
+  type: semver
+  icon: tag-outline
+  source:
+    driver: git
+    uri: *github_uri
+    private_key: *github_private_key
+    branch: version
+    file: version
+    initial_version: "0.0.0"
+- name: image
+  type: registry-image
+  icon: docker
+  source:
+    repository: cappyzawa/romver-resource
+    username: ((docker-username))
+    password: ((docker-password))
+
+jobs:
+- name: check-master
+  plan:
+  - get: romver-resource
+    trigger: true
+  - task: test
+    file: romver-resource/ci/tasks/test.yml
+
+- name: versioning
+  plan:
+  - in_parallel:
+    - get: romver-resource
+      trigger: true
+      passed: [check-master]
+    - get: version
+      params:
+        bump: patch
+  - in_parallel:
+    - put: romver-resource
+      params:
+        repository: romver-resource
+        tag: version/version
+    - put: version
+      params:
+        file: version/version
+
+- name: publish-image
+  plan:
+  - in_parallel:
+    - get: romver-resource
+      passed: [versioning]
+      trigger: true
+    - get: builder
+    - get: version
+      passed: [versioning]
+  - task: build
+    image: builder
+    privileged: true
+    config:
+      platform: linux
+      params:
+        REPOSITORY: cappyzawa/romver-resource
+        CONTEXT: romver-resource
+      inputs: [{name: romver-resource}]
+      outputs: [{name: image}]
+      caches: [{path: cache}]
+      run: {path: build}
+  - put: image
+    params:
+      image: image/image.tar
+      additional_tags: version/version
