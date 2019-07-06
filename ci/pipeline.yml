@@ -72,6 +72,10 @@ jobs:
       params:
         REPOSITORY: cappyzawa/romver-resource
         CONTEXT: romver-resource
+        BUILD_ARG_ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
+        BUILD_ARG_ROMVER_TESTING_GITHUB_BRANCH: integration
+        BUILD_ARG_ROMVER_TESTING_GITHUB_USERNAME: ((github-username))
+        BUILD_ARG_ROMVER_TESTING_GITHUB_PASSWORD: ((github-password))
       inputs: [{name: romver-resource}]
       outputs: [{name: image}]
       caches: [{path: cache}]
