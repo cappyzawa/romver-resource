@@ -51,6 +51,7 @@ jobs:
       params:
         repository: romver-resource
         tag: version/version
+        tag_prefix: v
     - put: version
       params:
         file: version/version
