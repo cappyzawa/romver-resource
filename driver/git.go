@@ -309,12 +309,10 @@ func (gd *GitDriver) writeVersion(newVersion string) (bool, error) {
 		return true, nil
 	}
 
-	fmt.Fprintf(os.Stderr, "before push\n")
 	gitPush := exec.Command("git", "push", "origin", "HEAD:"+gd.Branch)
 	gitPush.Dir = gitRepoDir
 
 	pushOutput, err := gd.Runner.CombinedOutput(gitPush)
-	fmt.Fprintf(os.Stderr, "after push\n")
 	if err != nil {
 		return false, err
 	}
