@@ -50,6 +50,9 @@ func (o *Out) Execute(args []string) int {
 			return o.fatal("reading versin file", err)
 		}
 		newVersion = versionStr
+		if err := driver.Set(newVersion); err != nil {
+			return o.fatal("setting version", err)
+		}
 	} else if req.Params.Bump {
 		newVersion, err = driver.Bump()
 		if err != nil {

@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	resource "github.com/cappyzawa/romver-resource"
 )
 
 var (
@@ -39,9 +41,11 @@ type GitDriver struct {
 	GitUser       string
 	Depth         string
 	CommitMessage string
+
+	Runner resource.Runner
 }
 
-// Bump increments version
+// Bump increments version and pushs
 func (gd *GitDriver) Bump() (string, error) {
 	if err := gd.setUpAuth(); err != nil {
 		return "", err
@@ -76,6 +80,68 @@ func (gd *GitDriver) Bump() (string, error) {
 		}
 	}
 	return newVersion, nil
+}
+
+// Check checks new version
+func (gd *GitDriver) Check(cursor string) ([]string, error) {
+	if err := gd.setUpAuth(); err != nil {
+		return nil, err
+	}
+
+	if err := gd.setUpRepo(); err != nil {
+		return nil, err
+	}
+
+	currentVersion, exists, err := gd.readVersion()
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return []string{gd.InitialVersion}, nil
+	}
+
+	if cursor == "" {
+		cursor = gd.InitialVersion
+	}
+
+	isCurrentGreater, err := gte(currentVersion, cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	if isCurrentGreater {
+		return []string{currentVersion}, nil
+	}
+
+	return []string{}, nil
+}
+
+// Set pushs version, but does not increment
+func (gd *GitDriver) Set(version string) error {
+	if err := gd.setUpAuth(); err != nil {
+		return err
+	}
+
+	if err := gd.setUserInfo(); err != nil {
+		return err
+	}
+
+	for {
+		if err := gd.setUpRepo(); err != nil {
+			return err
+		}
+
+		wrote, err := gd.writeVersion(version)
+		if err != nil {
+			return err
+		}
+
+		if wrote {
+			break
+		}
+	}
+
+	return nil
 }
 
 func (gd *GitDriver) setUpAuth() error {
@@ -114,16 +180,16 @@ func (gd *GitDriver) setUpKey() error {
 		}
 	}
 
-	if isPrivateKeyEncrypted(privateKeyPATH) {
+	if gd.isPrivateKeyEncrypted(privateKeyPATH) {
 		return ErrEncryptedKey
 	}
 	return os.Setenv("GIT_SSH_COMMAND", "ssh -o StrictHostKeyChecking=no -i "+privateKeyPATH)
 }
 
-func isPrivateKeyEncrypted(path string) bool {
+func (gd *GitDriver) isPrivateKeyEncrypted(path string) bool {
 	passphrases := ``
 	cmd := exec.Command(`ssh-keygen`, `-y`, `-f`, path, `-P`, passphrases)
-	err := cmd.Run()
+	err := gd.Runner.Run(cmd)
 	return err != nil
 }
 
@@ -153,18 +219,14 @@ func (gd *GitDriver) setUserInfo() error {
 
 	if user.Name != "" {
 		gitName := exec.Command("git", "config", "--global", "user.name", user.Name)
-		gitName.Stdout = os.Stderr
-		gitName.Stderr = os.Stderr
-		if err := gitName.Run(); err != nil {
-			return err
+		if err := gd.Runner.Run(gitName); err != nil {
+			return fmt.Errorf("error: %v, detail: %v", err, gd.Runner.Error())
 		}
 	}
 
 	gitEmail := exec.Command("git", "config", "--global", "user.email", user.Address)
-	gitEmail.Stdout = os.Stderr
-	gitEmail.Stderr = os.Stderr
-	if err := gitEmail.Run(); err != nil {
-		return err
+	if err := gd.Runner.Run(gitEmail); err != nil {
+		return fmt.Errorf("error: %v, detail: %v", err, gd.Runner.Error())
 	}
 	return nil
 }
@@ -176,29 +238,22 @@ func (gd *GitDriver) setUpRepo() error {
 			gitClone.Args = append(gitClone.Args, "--depth", gd.Depth)
 		}
 		gitClone.Args = append(gitClone.Args, "--single-branch", gitRepoDir)
-		gitClone.Stdout = os.Stderr
-		gitClone.Stderr = os.Stderr
-		if err := gitClone.Run(); err != nil {
-			return err
+		if err := gd.Runner.Run(gitClone); err != nil {
+			return fmt.Errorf("error: %v, detail: %v", err, gd.Runner.Error())
 		}
 	} else {
 		gitFetch := exec.Command("git", "fetch", "origin", gd.Branch)
 		gitFetch.Dir = gitRepoDir
-		gitFetch.Stdout = os.Stderr
-		gitFetch.Stderr = os.Stderr
-		if err := gitFetch.Run(); err != nil {
-			return err
+		if err := gd.Runner.Run(gitFetch); err != nil {
+			return fmt.Errorf("error: %v, detail: %v", err, gd.Runner.Error())
 		}
 	}
 
 	gitCheckout := exec.Command("git", "reset", "--hard", "origin/"+gd.Branch)
 	gitCheckout.Dir = gitRepoDir
-	gitCheckout.Stdout = os.Stderr
-	gitCheckout.Stderr = os.Stderr
-	if err := gitCheckout.Run(); err != nil {
-		return err
+	if err := gd.Runner.Run(gitCheckout); err != nil {
+		return fmt.Errorf("error: %v, detail: %v", err, gd.Runner.Error())
 	}
-
 	return nil
 }
 
@@ -233,10 +288,8 @@ func (gd *GitDriver) writeVersion(newVersion string) (bool, error) {
 
 	gitAdd := exec.Command("git", "add", gd.File)
 	gitAdd.Dir = gitRepoDir
-	gitAdd.Stdout = os.Stderr
-	gitAdd.Stderr = os.Stderr
-	if err := gitAdd.Run(); err != nil {
-		return false, err
+	if err := gd.Runner.Run(gitAdd); err != nil {
+		return false, fmt.Errorf("error: %v, detail: %v", err, gd.Runner.Error())
 	}
 	var commitMessage string
 	if gd.CommitMessage == "" {
@@ -248,7 +301,7 @@ func (gd *GitDriver) writeVersion(newVersion string) (bool, error) {
 
 	gitCommit := exec.Command("git", "commit", "-m", commitMessage)
 	gitCommit.Dir = gitRepoDir
-	commitOutput, err := gitCommit.CombinedOutput()
+	commitOutput, err := gd.Runner.CombinedOutput(gitCommit)
 	if err != nil {
 		return false, err
 	}
@@ -256,12 +309,13 @@ func (gd *GitDriver) writeVersion(newVersion string) (bool, error) {
 		return true, nil
 	}
 
+	fmt.Fprintf(os.Stderr, "before push\n")
 	gitPush := exec.Command("git", "push", "origin", "HEAD:"+gd.Branch)
 	gitPush.Dir = gitRepoDir
 
-	pushOutput, err := gitPush.CombinedOutput()
+	pushOutput, err := gd.Runner.CombinedOutput(gitPush)
+	fmt.Fprintf(os.Stderr, "after push\n")
 	if err != nil {
-		os.Stderr.Write(pushOutput)
 		return false, err
 	}
 
@@ -278,40 +332,6 @@ func (gd *GitDriver) writeVersion(newVersion string) (bool, error) {
 	}
 
 	return true, err
-}
-
-// Check checks new version
-func (gd *GitDriver) Check(cursor string) ([]string, error) {
-	if err := gd.setUpAuth(); err != nil {
-		return nil, err
-	}
-
-	if err := gd.setUpRepo(); err != nil {
-		return nil, err
-	}
-
-	currentVersion, exists, err := gd.readVersion()
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return []string{gd.InitialVersion}, nil
-	}
-
-	if cursor == "" {
-		cursor = gd.InitialVersion
-	}
-
-	isCurrentGreater, err := gte(currentVersion, cursor)
-	if err != nil {
-		return nil, err
-	}
-
-	if isCurrentGreater {
-		return []string{currentVersion}, nil
-	}
-
-	return []string{}, nil
 }
 
 func gte(current, cursor string) (bool, error) {
