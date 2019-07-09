@@ -8,7 +8,7 @@ This resource can manage major version(`X`) only.
 
 When version is bumped by this resouce, new version is `X+1`.
 
-There is no concept of `major`, `minor` and `patch` like semanic versiong.
+There is no concept of `major`, `minor` and `patch` like semanic versioning.
 
 ## Source Configuration
 
