@@ -26,13 +26,16 @@ jobs:
     needs: [build]
     steps:
     - uses: actions/checkout@master
+    - name: Get tag name
+      id: get_version
+      run: echo ::set-env name=TAG_NAME::$(echo ${GITHUB_SHA::8})
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: cappyzawa/romver-resource
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: "latest,${{ github.ref }}"
+        tags: "latest,${{ env.TAG_NAME }}"
         buildargs: ROMVER_TESTING_GITHUB_URI,ROMVER_TESTING_GITHUB_BRANCH,ROMVER_TESTING_GITHUB_USERNAME,ROMVER_TESTING_GITHUB_PASSWORD
       env:
         ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
