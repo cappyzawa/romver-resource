@@ -48,7 +48,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: cappyzawa/romver-resource
+        name: IMAGE_ID docker.pkg.github.com/cappyzawa/romver-resource/resource
         username: github-actions
         password: ${{ secrets.GITHUB_TOKEN }}
         tag_names: true
