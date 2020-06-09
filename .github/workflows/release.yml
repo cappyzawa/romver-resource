@@ -34,7 +34,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_names: true
         buildargs: ROMVER_TESTING_GITHUB_URI,ROMVER_TESTING_GITHUB_BRANCH,ROMVER_TESTING_GITHUB_USERNAME,ROMVER_TESTING_GITHUB_PASSWORD
-      env: &publish_env
+      env:
         ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
         ROMVER_TESTING_GITHUB_BRANCH: integration
         ROMVER_TESTING_GITHUB_USERNAME: github-actions
@@ -53,4 +53,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         tag_names: true
         buildargs: ROMVER_TESTING_GITHUB_URI,ROMVER_TESTING_GITHUB_BRANCH,ROMVER_TESTING_GITHUB_USERNAME,ROMVER_TESTING_GITHUB_PASSWORD
-      env: *publish_env
+      env:
+        ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
+        ROMVER_TESTING_GITHUB_BRANCH: integration
+        ROMVER_TESTING_GITHUB_USERNAME: github-actions
+        ROMVER_TESTING_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
