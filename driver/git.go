@@ -172,7 +172,7 @@ func (gd *GitDriver) setUpAuth() error {
 func (gd *GitDriver) setUpKey() error {
 	if _, err := os.Stat(privateKeyPATH); err != nil {
 		if os.IsNotExist(err) {
-			if err := ioutil.WriteFile(privateKeyPATH, []byte(gd.PrivateKey), 0600); err != nil {
+			if err := ioutil.WriteFile(privateKeyPATH, []byte(gd.PrivateKey+"\n"), 0600); err != nil {
 				return err
 			}
 		} else {
