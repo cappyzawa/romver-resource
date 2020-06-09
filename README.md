@@ -1,6 +1,6 @@
 # romver-resource
-![GitHub release](https://img.shields.io/github/release/cappyzawa/romver-resource.svg)
-![GitHub](https://img.shields.io/github/license/cappyzawa/romver-resource.svg)
+[![GitHub release](https://img.shields.io/github/release/cappyzawa/romver-resource.svg)](https://github.com/cappyzawa/romver-resource/releases)
+[![GitHub](https://img.shields.io/github/license/cappyzawa/romver-resource.svg)](./LICENSE)
 
 A resource for managing a version number. Persists the version number in one of several backing stores.
 
