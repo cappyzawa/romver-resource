@@ -39,22 +39,3 @@ jobs:
         ROMVER_TESTING_GITHUB_BRANCH: integration
         ROMVER_TESTING_GITHUB_USERNAME: github-actions
         ROMVER_TESTING_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-  publish-image-to-github:
-    name: Publish Image to GitHub Packages
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: IMAGE_ID docker.pkg.github.com/cappyzawa/romver-resource/resource
-        username: github-actions
-        password: ${{ secrets.GITHUB_TOKEN }}
-        tag_names: true
-        buildargs: ROMVER_TESTING_GITHUB_URI,ROMVER_TESTING_GITHUB_BRANCH,ROMVER_TESTING_GITHUB_USERNAME,ROMVER_TESTING_GITHUB_PASSWORD
-      env:
-        ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
-        ROMVER_TESTING_GITHUB_BRANCH: integration
-        ROMVER_TESTING_GITHUB_USERNAME: github-actions
-        ROMVER_TESTING_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
