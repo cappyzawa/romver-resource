@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+    branches:
+    - master
+    tags-ignore:
+    - "*.*.*"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ["1.13", "1.14"]
+    steps:
+    - uses: actions/setup-go@master
+      with:
+        go-version: ${{ matrix.go }}
+    - uses: actions/checkout@master
+    - name: install ginkgo
+      run: |
+        go get github.com/onsi/ginkgo/ginkgo
+        go get github.com/onsi/gomega/...
+    - name: ginkgo
+      run: |
+        ginkgo -r -v -skip="RomverResource"
+  tag:
+    name: "Tag"
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO_OWNER: cappyzawa
+        WITH_V: true
