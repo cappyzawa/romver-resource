@@ -29,9 +29,10 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: myDocker/repository
+        name: cappyzawa/romver-resource
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_names: true
       env:
         ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
         ROMVER_TESTING_GITHUB_BRANCH: integration
