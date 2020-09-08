@@ -32,11 +32,12 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: ghcr.io/cappyzawa/romver-resource
+        name: cappyzawa/romver-resource
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         tags: "latest,${{ env.TAG_NAME }}"
         buildargs: ROMVER_TESTING_GITHUB_URI,ROMVER_TESTING_GITHUB_BRANCH,ROMVER_TESTING_GITHUB_USERNAME,ROMVER_TESTING_GITHUB_PASSWORD
+        registry: ghcr.io
       env:
         ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
         ROMVER_TESTING_GITHUB_BRANCH: integration
