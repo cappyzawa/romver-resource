@@ -53,7 +53,7 @@ resource_types:
 - name: romver
   type: registry-image
   source:
-    repository: cappyzawa/romver-resource
+    repository: ghcr.io/cappyzawa/romver-resource
 resources:
 - name: version
   type: romver
