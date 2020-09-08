@@ -35,7 +35,7 @@ jobs:
         name: cappyzawa/romver-resource
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: "latest,${{ github.ref }}"
+        tags: "latest,$(echo ${GITHUB_REF##*/})"
         buildargs: ROMVER_TESTING_GITHUB_URI,ROMVER_TESTING_GITHUB_BRANCH,ROMVER_TESTING_GITHUB_USERNAME,ROMVER_TESTING_GITHUB_PASSWORD
         registry: ghcr.io
       env:
