@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go: ["1.13", "1.14"]
+        go: ["1.17"]
     steps:
     - uses: actions/setup-go@master
       with:
@@ -22,8 +22,8 @@ jobs:
     - uses: actions/checkout@master
     - name: install ginkgo
       run: |
-        go get github.com/onsi/ginkgo/ginkgo
-        go get github.com/onsi/gomega/...
+        go install github.com/onsi/ginkgo/ginkgo
+        go install github.com/onsi/gomega/...
     - name: ginkgo
       run: |
         ginkgo -r -v -skip="RomverResource"
