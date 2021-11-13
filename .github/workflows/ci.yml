@@ -22,8 +22,7 @@ jobs:
     - uses: actions/checkout@master
     - name: install ginkgo
       run: |
-        go install github.com/onsi/ginkgo/ginkgo
-        go install github.com/onsi/gomega/...
+        go get -u github.com/onsi/ginkgo/ginkgo
     - name: ginkgo
       run: |
         ginkgo -r -v -skip="RomverResource"
