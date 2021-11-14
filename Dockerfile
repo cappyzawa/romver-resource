@@ -30,3 +30,4 @@ RUN set -e; for test in ./*.test; do \
 	done
 
 FROM resource
+LABEL org.opencontainers.image.source = "https://github.com/cappyzawa/romver-resource"
