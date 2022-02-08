@@ -25,4 +25,9 @@ jobs:
         go get -u github.com/onsi/ginkgo/ginkgo
     - name: ginkgo
       run: |
-        ginkgo -r -v -skip="RomverResource"
+        ginkgo -r -v
+      env:
+        ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
+        ROMVER_TESTING_GITHUB_BRANCH: integration
+        ROMVER_TESTING_GITHUB_USERNAME: github-actions
+        ROMVER_TESTING_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

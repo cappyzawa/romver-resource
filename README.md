@@ -122,9 +122,9 @@ When `bump` used, the version bump will be applied atomically,
 if the driver supports it. That is, if we pull down version `N`. 
 
 ### Running the tests
+
 ```
-$ cd romver-resource
-$ fly -t <target> -c ci/tasks/test.yml -i romver-resource=. 
+$ ginkgo -r -v -skip="RomverResource"
 ```
 
 #### Integration tests
@@ -140,7 +140,7 @@ You will need:
 Run the tests with the following command, replacing each `build-arg` value with your own values:
 
 ```sh
-docker build . -t semver-resource \
+docker build . -t romver-resource \
     --build-arg ROMVER_TESTING_GITHUB_URI='https://github.com/your/repo' \
     --build-arg ROMVER_TESTING_GITHUB_BRANCH='branch' \
     --build-arg ROMVER_TESTING_GITHUB_USERNAME='github-username' \
