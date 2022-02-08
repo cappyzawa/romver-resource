@@ -11,7 +11,7 @@ import (
 	resource "github.com/cappyzawa/romver-resource"
 )
 
-var _ = Describe("In", func() {
+var _ = Describe("Check", func() {
 	var req struct {
 		Source  resource.Source
 		Version *resource.Version

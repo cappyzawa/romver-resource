@@ -23,7 +23,7 @@ var (
 var ErrEncryptedKey = errors.New("private keys with passphrases are not supported")
 
 func init() {
-	gitRepoDir = filepath.Join(os.TempDir(), "semver-git-repo")
+	gitRepoDir = filepath.Join(os.TempDir(), "romver-git-repo")
 	privateKeyPATH = filepath.Join(os.TempDir(), "private-key")
 	netRcPATH = filepath.Join(os.Getenv("HOME"), ".netrc")
 }
