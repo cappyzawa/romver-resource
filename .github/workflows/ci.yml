@@ -20,9 +20,12 @@ jobs:
       with:
         go-version: ${{ matrix.go }}
     - uses: actions/checkout@master
-    - name: go test
+    - name: install ginkgo
       run: |
-        go test -v ./...
+        go get -u github.com/onsi/ginkgo/ginkgo
+    - name: ginkgo
+      run: |
+        ginkgo -r -v -skip="RomverResource"
       env:
         ROMVER_TESTING_GITHUB_URI: https://github.com/cappyzawa/romver-resource
         ROMVER_TESTING_GITHUB_BRANCH: integration
